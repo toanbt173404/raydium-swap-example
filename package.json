@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "swap": "ts-node ./src/index.ts",
-    "swap-v2": "ts-node ./src/RaydiumSwapV2.ts"
+    "swap-worker": "ts-node ./src/RaydiumSwapWoker.ts"
 
   },
   "author": "DZ",

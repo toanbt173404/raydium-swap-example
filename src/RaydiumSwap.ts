@@ -13,6 +13,7 @@ import {
 } from '@raydium-io/raydium-sdk'
 import { Wallet } from '@coral-xyz/anchor'
 import bs58 from 'bs58'
+import { readFile } from 'fs/promises'
 
 class RaydiumSwap {
   allPoolKeysJson: LiquidityPoolJsonInfo[]
@@ -34,14 +35,30 @@ class RaydiumSwap {
     this.allPoolKeysJson = allPoolKeysJson
   }
 
-  findPoolInfoForTokens(mintA: string, mintB: string) {
-    const poolData = this.allPoolKeysJson.find(
-      (i) => (i.baseMint === mintA && i.quoteMint === mintB) || (i.baseMint === mintB && i.quoteMint === mintA)
-    )
+  async findPoolInfoForTokens(mintA: string, mintB: string): Promise<LiquidityPoolKeys | null> {
+    // const poolData = this.allPoolKeysJson.find(
+    //   (i) => (i.baseMint === mintA && i.quoteMint === mintB) || (i.baseMint === mintB && i.quoteMint === mintA)
+    // )
 
-    if (!poolData) return null
+    // if (!poolData) return null
 
-    return jsonInfo2PoolKeys(poolData) as LiquidityPoolKeys
+    // return jsonInfo2PoolKeys(poolData) as LiquidityPoolKeys
+
+    try {
+      const fileContent = await readFile('mainnet.json', 'utf8');
+      const allPoolKeys = JSON.parse(fileContent);
+
+      const poolData = allPoolKeys.find(
+        (i: any) => (i.baseMint === mintA && i.quoteMint === mintB) || (i.baseMint === mintB && i.quoteMint === mintA)
+      );
+
+      if (!poolData) return null;
+
+      return jsonInfo2PoolKeys(poolData) as LiquidityPoolKeys;
+    } catch (error) {
+      console.error('Error reading or parsing mainnet.json:', error);
+      return null;
+    }
   }
 
   async getOwnerTokenAccounts() {
